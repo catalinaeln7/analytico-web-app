@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
       <nav className="navbar">
         <div className="navbar-left">
           <img
-            src={`${import.meta.env.BASE_URL}analytico_logo.png`}
+            src="analytico_logo.png"
             alt="Analytico logo"
             className="navbar-logo"
           />
