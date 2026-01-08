@@ -6,6 +6,7 @@
 .app {
   display: flex;
   flex-direction: column;
+  background-color: #e6d7d0;
 }
 
 .logo {
