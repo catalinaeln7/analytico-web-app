@@ -6,22 +6,12 @@ interface Props {
 }
 
 const FullVersionModal: React.FC<Props> = ({ onClose }) => {
-  const [email, setEmail] = useState("");
-  const [startedTrial, setStartedTrial] = useState(false);
-  const [trialClicks, setTrialClicks] = useState<number>(
-    Number(localStorage.getItem("trialClicks") || 0)
-  );
 
   const handleStartTrial = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newCount = trialClicks + 1;
-    localStorage.setItem("trialClicks", String(newCount));
-    setTrialClicks(trialClicks);
-
-    console.log("User clicked Start Free Trial", email);
-
-    setStartedTrial(true);
+    // 🔴 FAKE PAYMENT INTENT / VALIDATION SIGNAL
+    console.log("User clicked Start Free Trial");
   };
 
   return (
@@ -44,9 +34,6 @@ const FullVersionModal: React.FC<Props> = ({ onClose }) => {
                 Start free trial
               </button>
             </form>
-            <p style={{ fontSize: "12px", color: "#ffffff", marginTop: "12px", marginBottom:"0px" }}>
-              “Start free trial” was clicked {trialClicks} times
-            </p>
           </>
         }
       </div>
