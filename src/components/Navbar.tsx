@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import "./Navbar.css";
-import JoinWaitlistModal from "./JoinWaitlistModal"; // import the modal
+import FullVersionModal from "./FullVersionModal";
 
 const Navbar: React.FC = () => {
-  const [showModal, setShowModal] = useState(false); // modal state
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <>
@@ -19,15 +19,16 @@ const Navbar: React.FC = () => {
         <div className="navbar-right">
           <button
             className="navbar-cta"
-            onClick={() => setShowModal(true)} // open modal
+            onClick={() => setShowModal(true)}
           >
-            Join waitlist
+            Try full version
           </button>
         </div>
       </nav>
 
-      {/* Modal rendered inside Navbar */}
-      {showModal && <JoinWaitlistModal onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <FullVersionModal onClose={() => setShowModal(false)} />
+      )}
     </>
   );
 };
