@@ -71,7 +71,7 @@
   border-radius: 16px;
   width: 100%;
   max-width: 640px;
-  height: 440px;
+  height: 550px;
 
   display: flex;
   flex-direction: column;
@@ -125,9 +125,9 @@
 .mockup-wrapper::after {
   content: "→";
   position: absolute;
-  left: 50%;
+  left: 48%;
   top: 50%;
   transform: translate(-50%, -50%);
   font-size: 32px;
-  color: #d0d7e2;
+  color: #ffffff;
 }

@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import "./Navbar.css";
 import FullVersionModal from "./FullVersionModal";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onNavigate: (page: "home" | "demo") => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -17,6 +21,20 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className="navbar-right">
+          <button
+            className="navbar-link"
+            onClick={() => onNavigate("home")}
+          >
+            Home
+          </button>
+
+          <button
+            className="navbar-link"
+            onClick={() => onNavigate("demo")}
+          >
+            Demo
+          </button>
+
           <button
             className="navbar-cta"
             onClick={() => setShowModal(true)}
