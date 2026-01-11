@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import "./FullVersionModal.css";
+import { usePostHog } from "../contexts/PostHogContext";
 
 interface Props {
   onClose: () => void;
 }
 
 const FullVersionModal: React.FC<Props> = ({ onClose }) => {
+  const posthog = usePostHog();
 
   const handleStartTrial = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Track analytics event
+    posthog.capture("start_free_trial_button_clicked");
 
     // 🔴 FAKE PAYMENT INTENT / VALIDATION SIGNAL
     console.log("User clicked Start Free Trial");

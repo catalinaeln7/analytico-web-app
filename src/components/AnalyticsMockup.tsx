@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./AnalyticsMockup.css";
+import { usePostHog } from "../contexts/PostHogContext";
 
 const cannedResponses = [
   `📅 Monday
@@ -83,6 +84,7 @@ const AnalyticsMockup: React.FC = () => {
   const [fileName, setFileName] = useState("");
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
   const [input, setInput] = useState("");
+  const posthog = usePostHog();
 
   // ref for auto-scroll
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -99,6 +101,11 @@ const AnalyticsMockup: React.FC = () => {
       setTimeout(() => {
         setFileUploaded(true);
         setMessages([{ role: "assistant", text: "✅ Your data is ready! Ask me anything." }]);
+        // Track successful file upload
+        posthog.capture("file_uploaded_successfully", {
+          file_name: e.target.files![0].name,
+          file_type: e.target.files![0].type,
+        });
       }, 1200);
     }
   };
@@ -108,6 +115,11 @@ const AnalyticsMockup: React.FC = () => {
 
     const randomResponse =
       cannedResponses[Math.floor(Math.random() * cannedResponses.length)];
+
+    // Track message sent event
+    posthog.capture("chat_message_sent", {
+      message_length: input.length,
+    });
 
     setMessages(prev => [
       ...prev,

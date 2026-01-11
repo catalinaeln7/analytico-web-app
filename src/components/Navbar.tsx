@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Navbar.css";
 import FullVersionModal from "./FullVersionModal";
+import { usePostHog } from "../contexts/PostHogContext";
 
 interface NavbarProps {
   onNavigate: (page: "home" | "demo") => void;
@@ -8,6 +9,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [showModal, setShowModal] = useState(false);
+  const posthog = usePostHog();
 
   return (
     <>
@@ -30,14 +32,20 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
 
           <button
             className="navbar-link"
-            onClick={() => onNavigate("demo")}
+            onClick={() => {
+              posthog.capture("demo_button_clicked");
+              onNavigate("demo");
+            }}
           >
             Demo
           </button>
 
           <button
             className="navbar-cta"
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              posthog.capture("try_full_version_button_clicked");
+              setShowModal(true);
+            }}
           >
             Try full version
           </button>
