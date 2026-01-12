@@ -1,166 +1,151 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./AnalyticsMockup.css";
-import { usePostHog } from "../contexts/PostHogContext";
 
-const cannedResponses = [
-  `📅 Monday
-🍫 Chocolate Cakes: 6
-🥕 Carrot Cakes: 4
-🍏 Apple Pies: 2
+const cannedResponsesMap: { [key: string]: string } = {
+  "What should I produce more next week?": `Here are the products to increase production:
+🍫 Chocolate Cake 📈 High demand
+🧁 Muffins 🔥 Trending
+🥐 Croissants 📈 Slight increase expected`,
+  
+  "What should I reduce production for?": `You might want to reduce production for:
+🍋 Lemon Tart ⚠️ Risk of overproduction
+🍏 Apple Pie 📉 Low demand
+🥧 Carrot Cake ⚠️ Risk of spoilage`,
+  
+  "Weekend vs weekday comparison?": `Here's the comparison:
+📅 Weekdays: 🥐 Croissants & 🍩 Donuts sell more
+🌙 Weekend: 🍫 Chocolate Cake & 🧁 Muffins are popular`
+};
 
-📅 Tuesday
-🍫 Chocolate Cakes: 5
-🍋 Lemon Tarts: 5
-🥧 Apple Pies: 3
 
-📅 Wednesday
-🍫 Chocolate Éclairs: 7
-🥕 Carrot Cakes: 3
-🍰 Cheesecakes: 2`,
-
-  `📅 Monday
-🥐 Croissants: 4
-🧁 Muffins: 6
-🍫 Chocolate Cakes: 3
-
-📅 Tuesday
-🧁 Muffins: 5
-🍰 Cheesecakes: 5
-🍋 Lemon Tarts: 2
-
-📅 Wednesday
-🥐 Croissants: 6
-🍫 Chocolate Éclairs: 4
-🍫 Chocolate Brownies: 3`,
-
-  `📅 Monday
-🍰 Cheesecakes: 5
-🍫 Chocolate Brownies: 4
-🍋 Lemon Tarts: 3
-
-📅 Tuesday
-🍫 Chocolate Cakes: 6
-🥕 Carrot Cakes: 4
-🧁 Muffins: 2
-
-📅 Wednesday
-🥐 Croissants: 7
-🍫 Chocolate Éclairs: 3
-🍏 Apple Pies: 2`,
-
-  `📅 Monday
-🍩 Cinnamon Rolls: 6
-🧁 Chocolate Muffins: 4
-🍋 Lemon Tarts: 3
-
-📅 Tuesday
-🍫 Chocolate Brownies: 5
-🍫 Chocolate Éclairs: 5
-🥕 Carrot Cakes: 2
-
-📅 Wednesday
-🥐 Croissants: 8
-🍰 Cheesecakes: 3
-🍫 Chocolate Cakes: 2`,
-
-  `📅 Monday
-🧁 Chocolate Muffins: 4
-🥕 Carrot Cakes: 5
-🍏 Apple Pies: 3
-
-📅 Tuesday
-🍫 Chocolate Cakes: 6
-🍋 Lemon Tarts: 4
-🍫 Brownies: 2
-
-📅 Wednesday
-🥐 Croissants: 5
-🍫 Chocolate Éclairs: 4
-🍰 Cheesecakes: 3`
-];
+interface Recommendation {
+  product: string;
+  trend?: string;
+  risk?: string;
+}
 
 const AnalyticsMockup: React.FC = () => {
   const [fileUploaded, setFileUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
   const [input, setInput] = useState("");
-  const posthog = usePostHog();
+  const [businessData, setBusinessData] = useState<{ type: string; location: string } | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
-  // ref for auto-scroll
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFileName(e.target.files[0].name);
-      setMessages([{ role: "assistant", text: "Analyzing your data..." }]);
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
 
-      setTimeout(() => {
-        setFileUploaded(true);
-        setMessages([{ role: "assistant", text: "✅ Your data is ready! Ask me anything." }]);
-        // Track successful file upload
-        posthog.capture("file_uploaded_successfully", {
-          file_name: e.target.files![0].name,
-          file_type: e.target.files![0].type,
-        });
-      }, 1200);
-    }
+    setFileName(file.name);
+    setMessages([{ role: "assistant", text: "Analyzing your data..." }]);
+
+    setTimeout(() => {
+      setFileUploaded(true);
+      setBusinessData({ type: "Bakery", location: "Bucharest" });
+
+      setRecommendations([
+        { product: "🍫 Chocolate Cake", trend: "📈 +18%" },
+        { product: "🍋 Lemon Tart", risk: "Overproduction" },
+        { product: "🍏 Apple Pie", trend: "📉 -12%" },
+      ]);
+
+      setMessages([{ role: "assistant", text: "✅ Your data is ready! Ask me anything." }]);
+    }, 1200);
   };
 
   const handleSend = () => {
     if (!input.trim()) return;
 
-    const randomResponse =
-      cannedResponses[Math.floor(Math.random() * cannedResponses.length)];
+    const randomResponse = cannedResponses[Math.floor(Math.random() * cannedResponses.length)];
 
-    // Track message sent event
-    posthog.capture("chat_message_sent", {
-      message_length: input.length,
-    });
-
-    setMessages(prev => [
+    setMessages((prev) => [
       ...prev,
       { role: "user", text: input },
       { role: "assistant", text: randomResponse },
     ]);
+
     setInput("");
   };
+
+  const handleQuickAction = (text: string) => {
+  const response = cannedResponsesMap[text] || "Here's what I found:";
+  setMessages((prev) => [
+    ...prev,
+    { role: "user", text },
+    { role: "assistant", text: response },
+  ]);
+};
 
   return (
     <div className="mockup-wrapper">
 
-      {/* LEFT – Upload */}
-      <div className="mockup-left">        
-        <div className="upload-card">
-          <h3>📊 Upload your sales data</h3>
+      {/* LEFT – Upload + Recommendations */}
+      <div className="mockup-left">
+        <div className={`upload-section ${fileUploaded ? "small" : ""}`}>
+          <div className="upload-card">
+            <h3>📊 Upload your sales data</h3>
 
-          {!fileUploaded ? (
-            <>
-              <input
-                type="file"
-                accept=".csv,.xlsx"
-                id="file-upload"
-                hidden
-                onChange={handleFileUpload}
-              />
-              <label htmlFor="file-upload" className="upload-button">
-                Upload file
-              </label>
-              <span className="upload-hint">.xlsx, .csv supported</span>
-            </>
-          ) : (
-            <>
+            {!fileUploaded ? (
+              <>
+                <input
+                  type="file"
+                  accept=".csv,.xlsx"
+                  id="file-upload"
+                  hidden
+                  onChange={handleFileUpload}
+                />
+                <label htmlFor="file-upload" className="upload-button">
+                  Upload file
+                </label>
+                <span className="upload-hint">.xlsx, .csv supported</span>
+              </>
+            ) : (
               <p className="file-success">✅ {fileName} uploaded</p>
-            </>
+            )}
+          </div>
+
+          {/* Recommendations Panel */}
+          {fileUploaded && (
+            <div className="recommendations-panel-left">
+              <h4>Next Week Predictions</h4>
+              {recommendations.map((rec, idx) => (
+                <div key={idx} className="rec-item">
+                  <span>{rec.product}</span>
+                  {rec.trend && <span>Trend {rec.trend}</span>}
+                  {rec.risk && <span>⚠️ {rec.risk}</span>}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
 
-      {/* RIGHT – Chat */}
+      {/* RIGHT – Chat + Quick Actions */}
       <div className="mockup-right">
+
+        {/* Business Context */}
+        {businessData && (
+          <div className="business-banner">
+            <strong>Business type:</strong> {businessData.type} | <strong>Location:</strong> {businessData.location}
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        {fileUploaded && (
+          <div className="quick-actions">
+            <button onClick={() => handleQuickAction("What should I produce more next week?")}>What to produce more?</button>
+            <button onClick={() => handleQuickAction("What should I reduce production for?")}>What to reduce?</button>
+            <button onClick={() => handleQuickAction("Weekend vs weekday comparison?")}>Weekend vs weekday?</button>
+          </div>
+        )}
+
+        {/* Chat Window */}
         <div className="chat-window">
           {messages.length === 0 && (
             <div className="chat-message system">
@@ -171,29 +156,17 @@ const AnalyticsMockup: React.FC = () => {
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`chat-message ${
-                msg.role === "user"
-                  ? "user"
-                  : msg.role === "assistant"
-                  ? "assistant"
-                  : "system"
-              }`}
+              className={`chat-message ${msg.role === "user" ? "user" : msg.role === "assistant" ? "assistant" : "system"}`}
             >
               {msg.text}
             </div>
           ))}
-
-          {/* auto-scroll anchor */}
-          <div ref={messagesEndRef} />
+          <div ref={chatEndRef} />
 
           <div className="chat-input">
             <input
               type="text"
-              placeholder={
-                fileUploaded
-                  ? "Ask a question about your data..."
-                  : "Upload data to enable chat"
-              }
+              placeholder={fileUploaded ? "Ask a question about your data..." : "Upload data to enable chat"}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
@@ -201,8 +174,8 @@ const AnalyticsMockup: React.FC = () => {
             />
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
   );
 };
